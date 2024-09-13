@@ -1,0 +1,27 @@
+# Dockerfile.frontend
+
+# Use an official Python runtime as a parent image
+FROM python:3.12-slim
+
+# Set the working directory in the container
+WORKDIR /app
+
+# Copy the current directory contents into the container at /app
+COPY ./frontend /app
+COPY ./config.py /app/config.py
+
+
+# Set environment variable
+ENV ENV="docker"
+
+# Install any needed packages specified in requirements.txt
+RUN pip install --no-cache-dir -r /app/requirements.txt
+
+# Make port 8501 available for Streamlit
+EXPOSE 8501
+
+# Health check to ensure connectivity to the FastAPI backend
+HEALTHCHECK --interval=30s --timeout=10s --retries=3 CMD curl -f http://fastapi:8000/health || exit 1
+
+# Command to run the Streamlit app
+CMD ["streamlit", "run", "streamlit_app.py", "--server.port=8501", "--server.address=0.0.0.0"]
